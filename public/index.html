@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Repas Famille 🍽</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-inner">
+        <div class="logo-mark">🍽</div>
+        <div class="header-text">
+          <h1>Repas famille</h1>
+          <p class="subtitle">Thermomix · Bio · Équilibré</p>
+        </div>
+        <div class="sync-indicator" id="syncIndicator">
+          <span class="sync-dot"></span>
+          <span class="sync-label">Sync</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-tab="planning">Planning</button>
+        <button class="nav-btn" data-tab="recipes">Recettes</button>
+        <button class="nav-btn" data-tab="shopping">Courses</button>
+      </nav>
+    </header>
+
+    <!-- Planning -->
+    <section id="tab-planning" class="tab active">
+      <div class="section-header">
+        <div>
+          <h2>Semaine du <span id="weekLabel"></span></h2>
+          <p class="hint">Appuyez sur un créneau pour assigner une recette</p>
+        </div>
+        <button class="week-nav" id="prevWeek">←</button>
+        <button class="week-nav" id="nextWeek">→</button>
+      </div>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="planning-tip" id="noRecipesTip" style="display:none">
+        <span>💡</span> Sélectionnez d'abord des recettes dans l'onglet <strong>Recettes</strong>
+      </div>
+    </section>
+
+    <!-- Recettes -->
+    <section id="tab-recipes" class="tab">
+      <div class="section-header">
+        <div>
+          <h2>Recettes Thermomix</h2>
+          <p class="hint">Sélectionnez celles que vous voulez cette semaine</p>
+        </div>
+        <div class="btn-group">
+          <button class="add-btn" id="addRecipeBtn">+ Ajouter</button>
+          <button class="ai-btn" id="generateBtn">
+            <span class="ai-icon">✦</span>
+            <span id="generateBtnText">Suggérer</span>
+          </button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <button class="chip active" data-filter="all">Toutes</button>
+        <button class="chip" data-filter="végétarien">Végé</button>
+        <button class="chip" data-filter="poisson">Poisson</button>
+        <button class="chip" data-filter="viande">Viande</button>
+        <button class="chip" data-filter="rapide">≤10 min</button>
+        <button class="chip" data-filter="cookidoo">Cookidoo</button>
+        <div class="chip-counter"><span id="selectedCount">0</span> choisies</div>
+      </div>
+      <div class="recipes-grid" id="recipesGrid"></div>
+    </section>
+
+    <!-- Courses -->
+    <section id="tab-shopping" class="tab">
+      <div class="section-header">
+        <div>
+          <h2>Liste de courses</h2>
+          <p class="hint">Générée à partir de vos recettes sélectionnées</p>
+        </div>
+        <button class="ai-btn" id="shopGenBtn">
+          <span class="ai-icon">✦</span><span>Générer</span>
+        </button>
+      </div>
+      <div id="shopContent">
+        <div class="empty-state">
+          <div class="empty-icon">🛒</div>
+          <p>Sélectionnez des recettes<br>puis générez la liste</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal assignation -->
+    <div id="assignModal" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Choisir une recette</h3>
+          <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-list" id="modalList"></div>
+        <button class="modal-clear" id="modalClear">Effacer ce créneau</button>
+      </div>
+    </div>
+
+    <!-- Modal ajout/édition recette -->
+    <div id="recipeModal" class="modal-overlay" style="display:none">
+      <div class="modal modal-tall">
+        <div class="modal-header">
+          <h3 id="recipeModalTitle">Nouvelle recette</h3>
+          <button class="modal-close" id="recipeModalClose">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group form-emoji">
+              <label>Emoji</label>
+              <input type="text" id="r-emoji" maxlength="2" placeholder="🍲"/>
+            </div>
+            <div class="form-group form-name">
+              <label>Nom de la recette</label>
+              <input type="text" id="r-name" placeholder="Velouté de courgettes"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Temps de préparation</label>
+              <input type="text" id="r-time" placeholder="12 min"/>
+            </div>
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select id="r-tag">
+                <option value="végétarien">🌿 Végétarien</option>
+                <option value="viande">🥩 Viande</option>
+                <option value="poisson">🐟 Poisson</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description courte</label>
+            <input type="text" id="r-desc" placeholder="Une description rapide..."/>
+          </div>
+          <div class="form-group">
+            <div class="label-row">
+              <label>Lien Cookidoo</label>
+              <span class="label-hint">optionnel — collez l'URL ou recherchez</span>
+            </div>
+            <input type="url" id="r-url" placeholder="https://cookidoo.fr/recipes/..."/>
+            <div class="cookidoo-search">
+              <input type="text" id="r-search" placeholder="Rechercher sur Cookidoo..."/>
+              <button class="search-btn" id="cookidooSearchBtn">🔍 Ouvrir</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="label-row">
+              <label>Ingrédients</label>
+              <button class="add-ingredient-btn" id="addIngredientBtn">+ Ajouter</button>
+            </div>
+            <div id="ingredientsList"></div>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="r-kids" checked/>
+            <label for="r-kids">Adapté aux enfants (2-4 ans)</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-delete" id="recipeDeleteBtn" style="display:none">Supprimer</button>
+          <button class="modal-save" id="recipeSaveBtn">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal détail recette -->
+    <div id="detailModal" class="modal-overlay" style="display:none">
+      <div class="modal modal-tall">
+        <div class="modal-header">
+          <h3 id="detailTitle">Recette</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="edit-btn" id="detailEditBtn">✏️ Modifier</button>
+            <button class="modal-close" id="detailClose">✕</button>
+          </div>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

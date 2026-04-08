@@ -1,0 +1,14 @@
+name = "repas-famille-worker"
+main = "worker/index.js"
+compatibility_date = "2024-01-01"
+
+# Routes — le worker intercepte /api/* et laisse passer le reste à Pages
+[[routes]]
+pattern = "/api/*"
+zone_name = ""
+
+# Variables d'environnement — à définir dans le dashboard Cloudflare
+# (Settings > Environment Variables)
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# ANTHROPIC_API_KEY
