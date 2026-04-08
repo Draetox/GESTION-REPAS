@@ -1,5 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "https://repas-famille-worker.YOUR_SUBDOMAIN.workers.dev/api/:splat"
+  to = "https://repas-famille-worker.antoinehubert0.workers.dev/api/:splat"
   status = 200
   force = true
+
